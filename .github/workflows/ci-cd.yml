@@ -1,0 +1,136 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-user-service:
+    runs-on: ubuntu-latest
+    name: Build User Service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build User Service
+        run: ./mvnw clean package -DskipTests
+        working-directory: userService
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: userService
+
+  build-posts-service:
+    runs-on: ubuntu-latest
+    name: Build Posts Service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build Posts Service
+        run: ./mvnw clean package -DskipTests
+        working-directory: postsService
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: postsService
+
+  build-connections-service:
+    runs-on: ubuntu-latest
+    name: Build Connections Service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build Connections Service
+        run: ./mvnw clean package -DskipTests
+        working-directory: connectionsService
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: connectionsService
+
+  build-notification-service:
+    runs-on: ubuntu-latest
+    name: Build Notification Service
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build Notification Service
+        run: ./mvnw clean package -DskipTests
+        working-directory: notificationService
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: notificationService
+
+  build-api-gateway:
+    runs-on: ubuntu-latest
+    name: Build API Gateway
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build API Gateway
+        run: ./mvnw clean package -DskipTests
+        working-directory: apiGateway
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: apiGateway
+
+  build-service-registry:
+    runs-on: ubuntu-latest
+    name: Build Service Registry
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build Service Registry
+        run: ./mvnw clean package -DskipTests
+        working-directory: serviceRegistry
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: serviceRegistry
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [build-user-service, build-posts-service, build-connections-service, build-notification-service, build-api-gateway, build-service-registry]
+    if: github.ref == 'refs/heads/main'
+    name: Docker Build & Push
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build all services
+        run: |
+          for dir in userService postsService connectionsService notificationService apiGateway serviceRegistry; do
+            cd $dir && ./mvnw clean package -DskipTests && cd ..
+          done
+      - name: Build Docker images
+        run: |
+          docker build -t linkedin/user-service:latest userService/
+          docker build -t linkedin/posts-service:latest postsService/
+          docker build -t linkedin/connections-service:latest connectionsService/
+          docker build -t linkedin/notification-service:latest notificationService/
+          docker build -t linkedin/api-gateway:latest apiGateway/
+          docker build -t linkedin/service-registry:latest serviceRegistry/
