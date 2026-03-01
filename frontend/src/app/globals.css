@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  /* Retro Color Palette */
+  --bg-color: #f4f1ea;        /* Cream/Beige */
+  --bg-secondary: #e8e4d9;    /* Slightly darker beige */
+  --text-main: #2b2b2b;       /* Charcoal/Dark Brown */
+  --text-muted: #5c5c5c;      /* Lighter gray/brown */
+  
+  --accent-orange: #d95c14;   /* Burnt Orange */
+  --accent-yellow: #eab62d;   /* Mustard Yellow */
+  --accent-teal: #2c7a7b;     /* Muted Teal */
+  --error-red: #c53030;
+  
+  --border-color: #2b2b2b;
+  --panel-bg: #fffcf5;
+  
+  /* Typography */
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  --font-sans: 'Courier Prime', 'Courier New', monospace; /* Keeping it all typewriter/mono for aesthetic */
+
+  /* Borders & Shadows */
+  --border-thick: 3px solid var(--border-color);
+  --border-thin: 1.5px solid var(--border-color);
+  --shadow-retro: 4px 4px 0px 0px var(--border-color);
+  --shadow-retro-hover: 2px 2px 0px 0px var(--border-color);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100vh;
+  /* subtle vintage paper texture effect */
+  background-image: radial-gradient(var(--bg-secondary) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+a {
+  color: var(--accent-teal);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ================== Retro Components ================== */
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  background-color: var(--panel-bg);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.5rem 1.2rem;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-retro);
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-retro-hover);
+}
+
+.btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: var(--accent-orange);
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: var(--accent-teal);
+  color: #fff;
+}
+
+/* Cards & Panels */
+.panel {
+  background-color: var(--panel-bg);
+  border: var(--border-thick);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-retro);
+  margin-bottom: 2rem;
+}
+
+/* Forms & Inputs */
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.8rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  background-color: var(--bg-color);
+  border: var(--border-thick);
+  color: var(--text-main);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent-orange);
+  background-color: #fff;
+}
+
+.textarea-field {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Layout Utilities */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.navbar {
+  background-color: var(--accent-yellow);
+  border-bottom: var(--border-thick);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-main);
+  background-color: #fff;
+  padding: 0.2rem 0.5rem;
+  border: var(--border-thick);
+  box-shadow: 2px 2px 0px var(--text-main);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Typography elements */
+h1, h2, h3, h4 {
+  font-family: var(--font-mono);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: 2.5rem;
+  border-bottom: var(--border-thick);
+  display: inline-block;
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Timestamp / Metadata */
+.meta-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Avatar Placeholder */
+.avatar {
+  width: 50px;
+  height: 50px;
+  background-color: var(--accent-teal);
+  border: var(--border-thick);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.error-msg {
+  color: var(--error-red);
+  background-color: #fdd;
+  border: 2px solid var(--error-red);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  font-family: var(--font-mono);
+}

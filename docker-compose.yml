@@ -16,7 +16,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -35,7 +35,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,7 +54,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +73,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,7 +89,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -147,7 +147,7 @@ services:
     networks:
       - linkedin-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -165,6 +165,118 @@ services:
     networks:
       - linkedin-network
 
+  # ==================== MICROSERVICES ====================
+  service-registry:
+    build:
+      context: ./serviceRegistry
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - linkedin-network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: ./apiGateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - linkedin-network
+
+  user-service:
+    build:
+      context: ./userService
+    container_name: user-service
+    ports:
+      - "9020:9020"
+    depends_on:
+      postgres-users:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      service-registry:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-users:5432/UsersDB
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - linkedin-network
+
+  posts-service:
+    build:
+      context: ./postsService
+    container_name: posts-service
+    ports:
+      - "9010:9010"
+    depends_on:
+      postgres-posts:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      service-registry:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-posts:5432/PostsDB
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - linkedin-network
+
+  connections-service:
+    build:
+      context: ./connectionsService
+    container_name: connections-service
+    ports:
+      - "9030:9030"
+    depends_on:
+      postgres-connections:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      service-registry:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-connections:5432/ConnectionsDB
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - linkedin-network
+
+  notification-service:
+    build:
+      context: ./notificationService
+    container_name: notification-service
+    ports:
+      - "9040:9040"
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      service-registry:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-notifications:5432/NotificationsDB
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-registry:8761/eureka/
+    networks:
+      - linkedin-network
+
 volumes:
   postgres-users-data:
   postgres-posts-data:
@@ -172,6 +284,7 @@ volumes:
   postgres-notifications-data:
   redis-data:
   elasticsearch-data:
+
 
 networks:
   linkedin-network:
