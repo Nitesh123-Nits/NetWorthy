@@ -58,9 +58,14 @@ public class NotificationService {
         return notificationRepository.countByUserIdAndReadFalse(userId);
     }
 
-    public void markAsRead(Long notificationId) {
+    public void markAsRead(Long notificationId, Long userId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        if (!notification.getUserId().equals(userId)) {
+            throw new RuntimeException("You cannot mark this notification as read");
+        }
+
         notification.setRead(true);
         notificationRepository.save(notification);
     }
